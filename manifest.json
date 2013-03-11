@@ -1,7 +1,6 @@
 {
   "name": "Spotify Search",
   "author": "Nate Lubeck",
-  "website": "http://www.natelubeck.com",
   "version": "1.0",
   "manifest_version": 2,
   "omnibox": { "keyword" : "spot" },
