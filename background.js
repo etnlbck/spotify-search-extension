@@ -1,35 +1,55 @@
+var memory;
+chrome.omnibox.onInputChanged.addListener(function(text, suggest){   
+  var baseUrl = "http://ws.spotify.com/search/1/artist.json?q="+text;
+  var finalResult = [];
+  var store = {};
+      
+  $.ajax({
+    url : baseUrl,
+    dataType : "json",
+    type: 'GET',
+    async: true,
+    success: function(result){
+           
+      var artists = result['artists'];
+      for (var i = 0; i < artists.length && i < 5; i += 1){  
+        var artist = artists[i];
+        if(artist.href){
+          var href_split = artist.href.split(":"), 
+            href = "http://play.spotify.com/artist/" + href_split[2],
+            obj = {},
+            artist = artist.name.replace("&", "and");
+            obj.artist = artist;
+            obj.url = href;
+            obj.description = "<match>" +
+              artist +
+              "</match>" +
+              "<dim> - </dim>" + 
+              " <url>" +
+              href + 
+              "</url>";
 
-chrome.omnibox.onInputChanged.addListener(
-    function(text, suggest){
-       
-       var baseUrl = "http://ws.spotify.com/search/1/track.json?q="+text;
-       var finalResult = [];
+          finalResult.push({
+            content : obj.artist, 
+            description : obj.description
+          });
+
+          store[obj.artist.replace(/ /g, "-")] = obj;
+
+
+          // temp store results in memory
+        }
+     }
+     memory = store;
+     suggest(finalResult);
+    }      
+  });          
       
-              $.ajax({
-                     url : baseUrl,
-                     dataType : "json",
-                     type: 'GET',
-                     success: function(result){
-                      console.log(result);
-                     var track = result['tracks'];
-                                     for (var i=0; i<track.length; i++){  
-                                          var href_split = track[i].href.split(":"), href = "http://play.spotify.com/track/"+href_split[2];
-                                          finalResult.push(
-                                                 {content : track[i].name+" - "+track[i]['artists'][0].name+" - "+href, description : track[i].name+" - "+track[i]['artists'][0].name+" - "+href}
-                                          );
-                                     }
-                                     suggest(finalResult);
-                      },
-                      async:false
-                     
-              });          
-      
-  }
-  );
+});
 
 // This event is fired with the user accepts the input in the omnibox.
-chrome.omnibox.onInputEntered.addListener(
-  function(text) {
-    var href_split = text.split(" - ");
-    chrome.tabs.update({ url: href_split[2] });
-  });
+chrome.omnibox.onInputEntered.addListener(function(text) {
+    var obj = memory[text.replace(/ /g, "-")];
+    chrome.tabs.update({ url: obj.url });
+    //loop through results find selected then push to local storage
+});
