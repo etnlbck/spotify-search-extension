@@ -1,12 +1,14 @@
 {
   "name": "Spotify Search",
   "author": "Nate Lubeck",
-  "version": "1.0",
+  "version": "1.1.2",
   "manifest_version": 2,
   "omnibox": { "keyword" : "spot" },
   "icons": {
-    "16": "icon-16.png"
+    "16": "icon-16.png",
+    "128": "128x128.png"
   },
+  "homepage_url":"http://www.natelubeck.com",
 
   "permissions":["http://ws.spotify.com/","tabs"],
   "background": {
